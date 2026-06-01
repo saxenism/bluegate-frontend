@@ -1,0 +1,9 @@
+.line {
+  display: inline-block;
+  animation: fadeIn 380ms cubic-bezier(0.2, 0, 0, 1);
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}

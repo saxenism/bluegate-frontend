@@ -4,13 +4,18 @@ import Link from 'next/link'
 import GithubIcon from '@/assets/icons/github.svg'
 import { useState } from 'react'
 import { cn } from '@/utils.cn'
+import { BluegateLoader } from '@/components/blugate-loader'
 
 export default function Home() {
+  const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const isError = Boolean(error)
 
+  if (isLoading) return <BluegateLoader />
+
   return (
     <div className="border-border container flex flex-1 flex-col items-center border font-sans">
+      {/* {isLoading && <BluegateLoader />} */}
       <main className="flex w-full flex-1 flex-col items-center justify-between gap-30 px-16 py-12">
         <div></div>
 
