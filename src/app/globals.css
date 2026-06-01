@@ -4,12 +4,15 @@
   --background: #0a0a0a;
   --foreground: #ffffff;
   --color-border: #2e2e2e;
+  --color-red: #dc0000;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-border: var(--color-border);
+  --color-red: var(--color-red);
+
   --font-sans: var(--font-geist-mono);
   --font-mono: var(--font-geist-mono);
 }
@@ -21,4 +24,9 @@ body {
 
 @utility container {
   @apply mx-auto px-4 lg:px-8;
+}
+
+button,
+[role='button'] {
+  @apply cursor-pointer;
 }
