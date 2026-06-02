@@ -1,6 +1,6 @@
 import { BluegateBar } from '@/components/bluegate-bar'
 import { Stepper } from '@/components/stepper'
-import { cn } from '@/utils.cn'
+import { cn } from '@/lib/utils/cn'
 
 export const BluegateLoader = () => {
   return (
