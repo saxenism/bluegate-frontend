@@ -56,6 +56,9 @@ export const Report = ({ data }: Props) => {
   const [showAllNetworkIndicators, setShowAllNetworkIndicators] =
     useState(false)
   const [showAllFindings, setShowAllFindings] = useState(false)
+  const [showAllCredentialPathRefs, setShowAllCredentialPathRefs] =
+    useState(false)
+  const [showAllReadmeSignals, setShowAllReadmeSignals] = useState(false)
 
   const bluegateVerdict = data.verdict.level || 'UNKNOWN'
   const bluegateScore = data.verdict.bluegate_score ?? 0
@@ -102,6 +105,11 @@ export const Report = ({ data }: Props) => {
 
   const riskyPackages = data.dependencies.risky_packages ?? []
   const networkIndicators = data.network_indicators ?? []
+  // TODO: This two data points will be added later
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const credentialPathRefs: any[] = []
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const readmeSignals: any[] = []
 
   const visibleRiskyPackages = showAllDependencyRisks
     ? riskyPackages
@@ -112,6 +120,12 @@ export const Report = ({ data }: Props) => {
   const visibleFindings = showAllFindings
     ? data.findings
     : data.findings.slice(0, INITIAL_LIST_VISIBLE_COUNT)
+  const visibleCredentialPathRefs = showAllCredentialPathRefs
+    ? credentialPathRefs
+    : credentialPathRefs.slice(0, INITIAL_LIST_VISIBLE_COUNT)
+  const visibleReadmeSignals = showAllReadmeSignals
+    ? readmeSignals
+    : readmeSignals.slice(0, INITIAL_LIST_VISIBLE_COUNT)
 
   const hiddenRiskyPackagesCount = Math.max(
     0,
@@ -124,6 +138,14 @@ export const Report = ({ data }: Props) => {
   const hiddenFindingsCount = Math.max(
     0,
     data.findings.length - INITIAL_LIST_VISIBLE_COUNT
+  )
+  const hiddenCredentialPathRefsCount = Math.max(
+    0,
+    credentialPathRefs.length - INITIAL_LIST_VISIBLE_COUNT
+  )
+  const hiddenReadmeSignalsCount = Math.max(
+    0,
+    readmeSignals.length - INITIAL_LIST_VISIBLE_COUNT
   )
 
   return (
@@ -580,14 +602,14 @@ export const Report = ({ data }: Props) => {
                 )}
               </div>
             ) : (
-              <>
+              <div className="px-6 lg:px-8">
                 <p className="font-basic mb-2 text-lg font-semibold">
                   No dependency risks found.
                 </p>
                 <p className="font-basic text-sm font-medium text-[#8F8F8F]">
                   Bluegate did not detect any risky dependencies.
                 </p>
-              </>
+              </div>
             )}
           </div>
 
@@ -637,14 +659,14 @@ export const Report = ({ data }: Props) => {
                 )}
               </div>
             ) : (
-              <>
+              <div className="px-6 lg:px-8">
                 <p className="font-basic mb-2 text-lg font-semibold">
                   No suspicious URLs or domains found.
                 </p>
                 <p className="font-basic text-sm font-medium text-[#8F8F8F]">
                   Bluegate did not detect any risky URLs or domains.
                 </p>
-              </>
+              </div>
             )}
           </div>
         </div>
@@ -657,38 +679,129 @@ export const Report = ({ data }: Props) => {
         </div>
 
         <div className="border-border grid grid-cols-1 border lg:grid-cols-2">
-          <div className="p-6 lg:p-8">
-            <p className="font-basic mb-4 text-base text-[#8F8F8F] lg:mb-8">
+          <div>
+            <p className="font-basic p-8 pb-6 text-base text-[#8F8F8F] max-lg:px-6">
               CREDENTIAL PATH REFERENCES
             </p>
 
-            <p className="font-basic mb-2 text-lg font-semibold">
-              No credential references found.
-            </p>
-            <p className="font-basic text-sm font-medium text-[#8F8F8F]">
-              Bluegate did not detect SSH, AWS, browser-profile, or wallet path
-              strings.
-            </p>
+            {!!credentialPathRefs.length ? (
+              <div>
+                {visibleCredentialPathRefs.map((ref) => (
+                  <div
+                    key={ref.evidence}
+                    className="border-border relative border-t px-6 py-2 lg:px-8"
+                  >
+                    <div
+                      className="absolute top-0 right-0 px-4 py-3 font-semibold tracking-[-2%]"
+                      style={{
+                        backgroundColor: `${VERDICT_LABELS_BG[ref.severity as unknown as keyof typeof VERDICT_LABELS_BG]}26`,
+                        color:
+                          VERDICT_COLORS[
+                            ref.severity as unknown as keyof typeof VERDICT_COLORS
+                          ],
+                      }}
+                    >
+                      {ref.severity}
+                    </div>
 
-            {/* <p className="font-basic text-sm font-medium text-[#8F8F8F]">
-              Bluegate found references to sensitive credential paths. This may
-              indicate credential targeting, especially when combined with file
-              reads, staging, or network upload behavior.
-            </p> */}
+                    <p className="font-basic mb-2 pr-20 text-base font-semibold lg:text-lg">
+                      {ref.evidence}
+                    </p>
+                    <p className="font-basic text-sm font-medium text-[#8F8F8F]">
+                      {ref.explanation}
+                    </p>
+                  </div>
+                ))}
+
+                {(hiddenCredentialPathRefsCount > 0 ||
+                  showAllCredentialPathRefs) && (
+                  <button
+                    className="font-basic border-border w-full border-t px-8 py-4 text-sm font-medium hover:bg-[#1F1F1F]"
+                    onClick={() =>
+                      setShowAllCredentialPathRefs((prevState) => !prevState)
+                    }
+                  >
+                    {showAllCredentialPathRefs
+                      ? 'SHOW LESS'
+                      : `SHOW ${hiddenCredentialPathRefsCount} MORE`}
+                  </button>
+                )}
+
+                <div className="border-border font-basic relative border-t px-6 py-4 text-sm font-medium text-[#8F8F8F] lg:px-8 lg:py-6">
+                  {`Bluegate did not detect a clear credential-exfiltration code path, but the combination of postinstall + README "live keys" instruction raises the action risk for npm install.`}
+                </div>
+              </div>
+            ) : (
+              <div className="px-6 pb-8 lg:px-8">
+                <p className="font-basic mb-2 text-lg font-semibold">
+                  No credential references found.
+                </p>
+                <p className="font-basic text-sm font-medium text-[#8F8F8F]">
+                  Bluegate did not detect SSH, AWS, browser-profile, or wallet
+                  path strings.
+                </p>
+              </div>
+            )}
           </div>
 
-          <div className="border-border border-t p-6 lg:border-t-0 lg:border-l lg:p-8">
-            <p className="font-basic mb-4 text-base text-[#8F8F8F] lg:mb-8">
+          <div className="border-border border-t pb-8 lg:border-t-0 lg:border-l">
+            <p className="font-basic p-8 pb-6 text-base text-[#8F8F8F] max-lg:px-6">
               README SIGNALS
             </p>
 
-            <p className="font-basic mb-2 text-lg font-semibold">
-              README looks normal.
-            </p>
-            <p className="font-basic text-sm font-medium text-[#8F8F8F]">
-              No pressure language, trust-workspace asks, or live-credential
-              requests detected.
-            </p>
+            {!!readmeSignals.length ? (
+              <div className="border-border border-b">
+                {visibleReadmeSignals.map((signal) => (
+                  <div
+                    key={signal.value}
+                    className="border-border relative border-t px-6 py-2 lg:px-8"
+                  >
+                    <div
+                      className="absolute top-0 right-0 px-4 py-3 font-semibold tracking-[-2%]"
+                      style={{
+                        backgroundColor: `${VERDICT_LABELS_BG[signal.risk as unknown as keyof typeof VERDICT_LABELS_BG]}26`,
+                        color:
+                          VERDICT_COLORS[
+                            signal.risk as unknown as keyof typeof VERDICT_COLORS
+                          ],
+                      }}
+                    >
+                      {signal.risk}
+                    </div>
+
+                    <p className="font-basic mb-2 pr-20 text-base font-semibold lg:text-lg">
+                      {signal.value}
+                    </p>
+                    <p className="font-basic text-sm font-medium text-[#8F8F8F]">
+                      {signal.context}
+                    </p>
+                  </div>
+                ))}
+
+                {(hiddenReadmeSignalsCount > 0 || showAllReadmeSignals) && (
+                  <button
+                    className="font-basic border-border w-full border-t px-8 py-4 text-sm font-medium hover:bg-[#1F1F1F]"
+                    onClick={() =>
+                      setShowAllReadmeSignals((prevState) => !prevState)
+                    }
+                  >
+                    {showAllReadmeSignals
+                      ? 'SHOW LESS'
+                      : `SHOW ${hiddenReadmeSignalsCount} MORE`}
+                  </button>
+                )}
+              </div>
+            ) : (
+              <div className="px-6 lg:px-8">
+                <p className="font-basic mb-2 text-lg font-semibold">
+                  README looks normal.
+                </p>
+                <p className="font-basic text-sm font-medium text-[#8F8F8F]">
+                  No pressure language, trust-workspace asks, or live-credential
+                  requests detected.
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </div>
