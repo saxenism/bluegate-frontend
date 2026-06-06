@@ -1,13 +1,50 @@
 'use client'
 
+import { BluegateLoader } from '@/components/blugate-loader'
 import { Report } from '@/components/report'
 import { LINKS } from '@/lib/constants'
 import Image from 'next/image'
 import Link from 'next/link'
-import data from './data.json'
-import { BluegateReport } from '@/lib/types'
+import { useParams } from 'next/navigation'
+import { useQuery } from '@tanstack/react-query'
+import { getScanReport, mapApiErrorToInlineMessage } from '@/lib/api'
+import { cacheReport, getCachedReport } from '@/lib/report-cache'
+import { useEffect } from 'react'
 
 export default function ReportPage() {
+  const params = useParams<{ id: string | string[] }>()
+  const scanId = Array.isArray(params?.id) ? params.id[0] : params?.id
+
+  const { data, isLoading, error } = useQuery({
+    queryKey: ['scan-report', scanId],
+    enabled: Boolean(scanId),
+    staleTime: Infinity,
+    queryFn: async () => {
+      if (!scanId) throw new Error('Missing scan ID')
+      return getScanReport(scanId)
+    },
+    initialData: scanId ? (getCachedReport(scanId) ?? undefined) : undefined,
+  })
+
+  useEffect(() => {
+    if (!scanId || !data) return
+    cacheReport(scanId, data)
+  }, [scanId, data])
+
+  if (isLoading) return <BluegateLoader />
+
+  if (!scanId || !data || error) {
+    return (
+      <div className="border-border container flex flex-1 flex-col items-center border font-sans">
+        <main className="flex w-full flex-1 flex-col items-center justify-center px-8 py-12">
+          <p className="text-red text-base font-medium">
+            {error ? mapApiErrorToInlineMessage(error) : 'Report not found'}
+          </p>
+        </main>
+      </div>
+    )
+  }
+
   return (
     <div className="border-border container flex flex-1 flex-col items-center border px-0 font-sans">
       <main className="flex w-full flex-1 flex-col items-center py-12">
@@ -34,7 +71,7 @@ export default function ReportPage() {
           </Link>
         </header>
 
-        <Report data={data as BluegateReport} />
+        <Report data={data} scanId={scanId} />
 
         <footer className="flex w-full items-center justify-between gap-4 px-12 text-xl font-medium text-[#8F8F8F] max-md:flex-col">
           {LINKS.map((link) => (

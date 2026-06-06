@@ -23,8 +23,9 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from '@/components/ui/accordion'
+import { downloadScanReport, mapApiErrorToInlineMessage } from '@/lib/api'
 
-type Props = { data: BluegateReport }
+type Props = { data: BluegateReport; scanId: string }
 
 const VERDICT_COLORS = {
   CRITICAL: '#780000',
@@ -47,7 +48,7 @@ const VERDICT_LABELS_BG = {
 const TOTAL_SCORE_SEGMENTS = 25
 const INITIAL_LIST_VISIBLE_COUNT = 10
 
-export const Report = ({ data }: Props) => {
+export const Report = ({ data, scanId }: Props) => {
   const [isCopied, setIsCopied] = useState(false)
   const [downloadPopoverOpen, setDownloadPopoverOpen] = useState(false)
   const [isDownloadLoading, setIsDownloadLoading] = useState(false)
@@ -84,18 +85,27 @@ export const Report = ({ data }: Props) => {
     }
   }
 
-  const handleDownload = (format: 'json' | 'md') => {
+  const handleDownload = async (format: 'json' | 'md') => {
     if (isDownloadLoading) return
 
-    // simulate download
     setIsDownloadLoading(true)
-    console.log(`Downloading report in ${format} format...`)
+    try {
+      const blob = await downloadScanReport(scanId, format)
+      const blobUrl = URL.createObjectURL(blob)
+      const link = document.createElement('a')
+      link.href = blobUrl
+      link.download = `bluegate-report-${scanId}.${format}`
+      link.click()
+      URL.revokeObjectURL(blobUrl)
 
-    // when done
-    setDownloadPopoverOpen(false)
-    setIsDownloadLoading(false)
-    setIsDownloaded(true)
-    setTimeout(() => setIsDownloaded(false), 2000)
+      setDownloadPopoverOpen(false)
+      setIsDownloaded(true)
+      setTimeout(() => setIsDownloaded(false), 2000)
+    } catch (error) {
+      console.error(mapApiErrorToInlineMessage(error))
+    } finally {
+      setIsDownloadLoading(false)
+    }
   }
 
   const getFindingSeverityById = (id?: string) => {

@@ -59,7 +59,6 @@ export interface MetalShaderProps {
   theme?: 'light' | 'dark'
   /** Per-channel multiplier applied to the metal color before tonemap. Default: white (no tint). */
   tintColor?: TintColor
-  style?: React.CSSProperties
   className?: string
 }
 
@@ -73,7 +72,6 @@ export function MetalShader({
   config: configOverride,
   theme = 'dark',
   tintColor,
-  style,
   className,
 }: MetalShaderProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
@@ -98,13 +96,19 @@ export function MetalShader({
   const startTimeRef = useRef<number | null>(null)
   const tintRef = useRef<TintColor>(tintColor ?? { r: 1, g: 1, b: 1 })
 
-  configRef.current = { ...DEFAULT_CONFIG, ...configOverride }
-  svgScaleRef.current = svgScale
-  themeRef.current = theme
-  svgPathRef.current = svgPath
-  svgWidthRef.current = svgWidth
-  svgHeightRef.current = svgHeight
-  tintRef.current = tintColor ?? { r: 1, g: 1, b: 1 }
+  useEffect(() => {
+    configRef.current = { ...DEFAULT_CONFIG, ...configOverride }
+    themeRef.current = theme
+    tintRef.current = tintColor ?? { r: 1, g: 1, b: 1 }
+  }, [configOverride, theme, tintColor])
+
+  useEffect(() => {
+    svgScaleRef.current = svgScale
+    svgPathRef.current = svgPath
+    svgWidthRef.current = svgWidth
+    svgHeightRef.current = svgHeight
+    needsRebuildRef.current = true
+  }, [svgScale, svgPath, svgWidth, svgHeight])
 
   const buildEnvMap = useCallback(() => {
     const size = 1024

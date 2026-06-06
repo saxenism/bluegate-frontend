@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { Geist_Mono, Instrument_Serif } from 'next/font/google'
 import './globals.css'
+import Provider from './provider'
 
 const geistMono = Geist_Mono({
   variable: '--font-geist-mono',
@@ -23,7 +24,9 @@ export default function RootLayout({
       lang="en"
       className={` ${geistMono.variable} ${instrumentSerif.variable} h-full antialiased`}
     >
-      <body className="flex min-h-full flex-col">{children}</body>
+      <body className="flex min-h-full flex-col">
+        <Provider>{children}</Provider>
+      </body>
     </html>
   )
 }

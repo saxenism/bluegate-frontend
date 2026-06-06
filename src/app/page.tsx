@@ -8,12 +8,84 @@ import { cn } from '@/lib/utils/cn'
 import { BluegateLoader } from '@/components/blugate-loader'
 import { LINKS } from '@/lib/constants'
 import { useRouter } from 'next/navigation'
+import {
+  BluegateApiError,
+  createScan,
+  getScanReport,
+  getScanStatus,
+  mapApiErrorToInlineMessage,
+  normalizeGithubRepoUrl,
+} from '@/lib/api'
+import { cacheReport } from '@/lib/report-cache'
+import { useQueryClient } from '@tanstack/react-query'
+
+const SCAN_POLL_INTERVAL_MS = 3000
+const SCAN_MAX_POLLS = 120
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 
 export default function Home() {
+  const [repoUrl, setRepoUrl] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const isError = Boolean(error)
   const router = useRouter()
+  const queryClient = useQueryClient()
+
+  const runScanFlow = async () => {
+    let shouldStopLoading = true
+
+    const { normalizedUrl, error: validationError } = normalizeGithubRepoUrl(
+      repoUrl.trim()
+    )
+
+    if (validationError || !normalizedUrl) {
+      setError(validationError || 'invalid URL')
+      return
+    }
+
+    setError(null)
+    setIsLoading(true)
+
+    try {
+      const scan = await createScan(normalizedUrl)
+
+      for (let attempt = 0; attempt < SCAN_MAX_POLLS; attempt++) {
+        const status = await getScanStatus(scan.scan_id)
+
+        if (status.status === 'failed') {
+          throw new BluegateApiError(
+            status.error?.code || 'scan_failed',
+            status.error?.message || 'Scan failed',
+            409
+          )
+        }
+
+        if (status.status === 'completed') {
+          const report = await getScanReport(scan.scan_id)
+          cacheReport(scan.scan_id, report)
+          queryClient.setQueryData(['scan-report', scan.scan_id], report)
+          shouldStopLoading = false
+          router.push(`/report/${scan.scan_id}`)
+          return
+        }
+
+        await sleep(SCAN_POLL_INTERVAL_MS)
+      }
+
+      throw new BluegateApiError(
+        'scan_timeout',
+        'Scan timed out, please try again.',
+        408
+      )
+    } catch (err) {
+      setError(mapApiErrorToInlineMessage(err))
+    } finally {
+      if (shouldStopLoading) {
+        setIsLoading(false)
+      }
+    }
+  }
 
   if (isLoading) return <BluegateLoader />
 
@@ -52,17 +124,27 @@ export default function Home() {
               </div>
               <input
                 type="text"
+                value={repoUrl}
                 className={cn(
                   'border-border h-14 w-full border-y px-4 py-2.5 text-base font-medium placeholder:text-[#666666] focus:outline-none max-md:border-r md:h-18 md:px-6 md:py-5 md:text-lg',
                   isError && 'border-red'
                 )}
                 placeholder="https://github.com/user-name/repo-name"
+                onChange={(event) => {
+                  setRepoUrl(event.target.value)
+                  if (error) setError(null)
+                }}
+                onKeyDown={(event) => {
+                  if (event.key !== 'Enter') return
+                  event.preventDefault()
+                  void runScanFlow()
+                }}
               />
             </div>
             <button
               className="border-border h-14 shrink-0 border bg-[#FAFAFA] px-12 text-lg font-semibold text-[#1F1F1F] hover:bg-[color-mix(in_srgb,#FAFAFA,#1F1F1F_15%)] max-md:w-full md:h-18 md:text-xl"
               onClick={() => {
-                router.push('/report/123')
+                void runScanFlow()
               }}
             >
               Analyse
