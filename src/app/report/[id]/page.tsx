@@ -1,12 +1,16 @@
 'use client'
 
+import { Report } from '@/components/report'
+import { LINKS } from '@/lib/constants'
 import Image from 'next/image'
 import Link from 'next/link'
+import data from './data.json'
+import { BluegateReport } from '@/lib/types'
 
 export default function ReportPage() {
   return (
     <div className="border-border container flex flex-1 flex-col items-center border px-0 font-sans">
-      <main className="flex w-full flex-1 flex-col items-center justify-between gap-30 py-12">
+      <main className="flex w-full flex-1 flex-col items-center py-12">
         <header className="border-border mb-18 flex w-full justify-between border-y">
           <Link
             href="/"
@@ -30,9 +34,20 @@ export default function ReportPage() {
           </Link>
         </header>
 
-        <section></section>
+        <Report data={data as BluegateReport} />
 
-        <footer></footer>
+        <footer className="flex w-full items-center justify-between gap-4 px-12 text-xl font-medium text-[#8F8F8F] max-md:flex-col">
+          {LINKS.map((link) => (
+            <Link
+              key={link.href}
+              href={link.href}
+              target={link.href.startsWith('http') ? '_blank' : undefined}
+              className="hover:text-[#CACACA] hover:underline"
+            >
+              {link.label}
+            </Link>
+          ))}
+        </footer>
       </main>
     </div>
   )

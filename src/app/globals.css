@@ -2,7 +2,7 @@
 
 :root {
   --background: #0a0a0a;
-  --foreground: #ffffff;
+  --foreground: #ebebeb;
   --color-border: #2e2e2e;
   --color-red: #dc0000;
 }
@@ -15,6 +15,7 @@
 
   --font-sans: var(--font-geist-mono);
   --font-mono: var(--font-geist-mono);
+  --font-serif: var(--font-instrument-serif);
 }
 
 body {
@@ -22,13 +23,17 @@ body {
   color: var(--foreground);
 }
 
+button,
+[role='button'] {
+  @apply cursor-pointer;
+}
+
 @utility container {
   @apply mx-auto px-4 lg:px-8;
 }
 
-button,
-[role='button'] {
-  @apply cursor-pointer;
+@utility font-basic {
+  @apply leading-[180%] tracking-[-2%];
 }
 
 @utility animate-fade-in {

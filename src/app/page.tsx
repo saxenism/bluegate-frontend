@@ -33,7 +33,7 @@ export default function Home() {
             priority
           />
 
-          <p className="mx-auto max-w-180 text-center leading-[180%] font-medium tracking-[-2%] text-pretty text-[#CACACA] md:text-xl">
+          <p className="font-basic mx-auto max-w-180 text-center font-medium text-pretty text-[#CACACA] md:text-xl">
             Paste a suspicious repo. Bluegate tells you what it tries to run
             before you do
           </p>
@@ -53,7 +53,7 @@ export default function Home() {
               <input
                 type="text"
                 className={cn(
-                  'border-border h-14 w-full border-y px-4 py-2.5 text-base font-medium text-[#EBEBEB] placeholder:text-[#666666] focus:outline-none max-md:border-r md:h-18 md:px-6 md:py-5 md:text-lg',
+                  'border-border h-14 w-full border-y px-4 py-2.5 text-base font-medium placeholder:text-[#666666] focus:outline-none max-md:border-r md:h-18 md:px-6 md:py-5 md:text-lg',
                   isError && 'border-red'
                 )}
                 placeholder="https://github.com/user-name/repo-name"

@@ -18,11 +18,11 @@ export default function NotFound() {
         </Link>
 
         <div className="space-y-10 text-center">
-          <p className="text-center text-[clamp(7rem,18vw,12rem)] leading-none font-semibold tracking-[-0.04em] text-[#EBEBEB] select-none">
+          <p className="text-center text-[clamp(7rem,18vw,12rem)] leading-none font-semibold tracking-[-0.04em] select-none">
             404
           </p>
 
-          <p className="mx-auto max-w-180 text-center text-base leading-[180%] font-medium tracking-[-2%] text-pretty text-[#CACACA] md:text-xl">
+          <p className="font-basic mx-auto max-w-180 text-center text-base font-medium text-pretty text-[#CACACA] md:text-xl">
             We checked. This page doesn&apos;t exist and never tried to install
             anything.
           </p>
