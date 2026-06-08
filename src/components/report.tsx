@@ -560,10 +560,10 @@ export const Report = ({ data, scanId }: Props) => {
           )}
       </div>
 
-      {/* EXECUTION PATHS 2 */}
+      {/* INDICATORS */}
       <div className="border-border border-b p-8">
         <div className="font-basic mb-8 text-base text-[#8F8F8F]">
-          EXECUTION PATHS · BY USER ACTION
+          INDICATORS
         </div>
 
         <div className="border-border grid grid-cols-1 border lg:grid-cols-2">
