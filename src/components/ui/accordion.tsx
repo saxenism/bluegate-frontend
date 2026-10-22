@@ -47,7 +47,7 @@ function AccordionTrigger({
         {...props}
       >
         {children}
-        <div className="border-border grid size-14 shrink-0 place-items-center border-b border-l lg:size-18">
+        <div className="grid size-14 shrink-0 place-items-center lg:size-18">
           <ChevronIcon
             data-slot="accordion-trigger-icon"
             className="pointer-events-none text-[#A9A9A9] group-aria-expanded/accordion-trigger:hidden"

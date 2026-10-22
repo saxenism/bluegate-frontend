@@ -1,47 +1,57 @@
-import { BluegateReport } from '@/lib/types'
+import { isScanDocument, type ScanDocument } from '@/lib/types'
 
-type ReportCache = Record<string, BluegateReport>
+const STORAGE_KEY = 'bluegate:reports:v2'
+const MAX_ITEMS = 10
 
-const STORAGE_KEY = 'bluegate:reports:v1'
-const MAX_ITEMS = 30
-
-function canUseStorage() {
-  return (
-    typeof window !== 'undefined' && typeof window.localStorage !== 'undefined'
-  )
-}
-
-function safeParse(input: string | null): ReportCache {
-  if (!input) return {}
+function readCache(): Record<string, unknown> {
   try {
-    return JSON.parse(input) as ReportCache
+    const value: unknown = JSON.parse(
+      window.localStorage.getItem(STORAGE_KEY) ?? '{}'
+    )
+    return value !== null && typeof value === 'object' && !Array.isArray(value)
+      ? (value as Record<string, unknown>)
+      : {}
   } catch {
     return {}
   }
 }
 
-function writeCache(cache: ReportCache) {
-  if (!canUseStorage()) return
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(cache))
+export function getCachedReport(scanId: string): ScanDocument | undefined {
+  const value = readCache()[scanId]
+  // Never pin an in-flight, failed, expired, or old-schema response in storage.
+  if (
+    !isScanDocument(value) ||
+    value.scan_id !== scanId ||
+    value.status !== 'done'
+  )
+    return undefined
+  if (
+    !value.valid_until ||
+    !Number.isFinite(Date.parse(value.valid_until)) ||
+    Date.parse(value.valid_until) <= Date.now()
+  )
+    return undefined
+  return value
 }
 
-function trimCache(cache: ReportCache): ReportCache {
-  const entries = Object.entries(cache)
-  if (entries.length <= MAX_ITEMS) return cache
-
-  const sliced = entries.slice(entries.length - MAX_ITEMS)
-  return Object.fromEntries(sliced)
-}
-
-export function getCachedReport(scanId: string): BluegateReport | null {
-  if (!canUseStorage()) return null
-  const cache = safeParse(window.localStorage.getItem(STORAGE_KEY))
-  return cache[scanId] ?? null
-}
-
-export function cacheReport(scanId: string, report: BluegateReport) {
-  if (!canUseStorage()) return
-  const cache = safeParse(window.localStorage.getItem(STORAGE_KEY))
-  const updated = trimCache({ ...cache, [scanId]: report })
-  writeCache(updated)
+export function cacheReport(scanId: string, report: ScanDocument) {
+  if (
+    report.status !== 'done' ||
+    !report.valid_until ||
+    !Number.isFinite(Date.parse(report.valid_until)) ||
+    Date.parse(report.valid_until) <= Date.now()
+  )
+    return
+  try {
+    const entries = Object.entries(readCache()).filter(([id]) => id !== scanId)
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify(
+        Object.fromEntries([...entries, [scanId, report]].slice(-MAX_ITEMS))
+      )
+    )
+    window.localStorage.removeItem('bluegate:reports:v1')
+  } catch {
+    /* Disabled/full storage must not prevent opening a report. */
+  }
 }
