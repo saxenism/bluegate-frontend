@@ -3,7 +3,7 @@
 import * as React from 'react'
 import ChevronIcon from '@/assets/icons/chevron.svg'
 import * as AccordionPrimitive from '@radix-ui/react-accordion'
-import { cn } from '@/lib/utils/cn'
+import { cn } from 'cn'
 
 function Accordion({
   className,
@@ -50,11 +50,11 @@ function AccordionTrigger({
         <div className="grid size-14 shrink-0 place-items-center lg:size-18">
           <ChevronIcon
             data-slot="accordion-trigger-icon"
-            className="pointer-events-none text-[#A9A9A9] group-aria-expanded/accordion-trigger:hidden"
+            className="pointer-events-none text-(--scan-muted) group-aria-expanded/accordion-trigger:hidden"
           />
           <ChevronIcon
             data-slot="accordion-trigger-icon"
-            className="pointer-events-none mb-1 hidden rotate-180 text-[#A9A9A9] group-aria-expanded/accordion-trigger:inline"
+            className="pointer-events-none mb-1 hidden rotate-180 text-(--scan-muted) group-aria-expanded/accordion-trigger:inline"
           />
         </div>
       </AccordionPrimitive.Trigger>

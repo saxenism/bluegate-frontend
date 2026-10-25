@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react'
 import gsap from 'gsap'
 import { MetalShader } from './metal-shader'
+import { useTheme } from 'next-themes'
 
 export interface BluegateBarProps {
   width: number
@@ -24,6 +25,7 @@ const BLUETHROAT_PATH = [
 ].join(' ')
 
 export function BluegateBar({ width, height }: BluegateBarProps) {
+  const { resolvedTheme } = useTheme()
   const barRef = useRef<SVGRectElement>(null)
 
   useEffect(() => {
@@ -58,7 +60,7 @@ export function BluegateBar({ width, height }: BluegateBarProps) {
           y="51.3901"
           width="133.011"
           height="197.501"
-          fill="white"
+          fill="var(--loader-center)"
         />
         <path
           d="M63.375 50.4348V249.845L0.107422 299.053V1.22681L63.375 50.4348Z"
@@ -81,10 +83,22 @@ export function BluegateBar({ width, height }: BluegateBarProps) {
             y2="162.232"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="white" />
-            <stop offset="0.155588" stopColor="white" stopOpacity="0.6" />
-            <stop offset="0.276887" stopColor="white" stopOpacity="0.3" />
-            <stop offset="0.614789" stopColor="white" stopOpacity="0" />
+            <stop stopColor="var(--loader-frame)" />
+            <stop
+              offset="0.155588"
+              stopColor="var(--loader-frame)"
+              stopOpacity="0.6"
+            />
+            <stop
+              offset="0.276887"
+              stopColor="var(--loader-frame)"
+              stopOpacity="0.3"
+            />
+            <stop
+              offset="0.614789"
+              stopColor="var(--loader-frame)"
+              stopOpacity="0"
+            />
           </linearGradient>
           <linearGradient
             id="bg_paint1"
@@ -94,8 +108,8 @@ export function BluegateBar({ width, height }: BluegateBarProps) {
             y2="143.087"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="white" />
-            <stop offset="1" stopColor="white" stopOpacity="0" />
+            <stop stopColor="var(--loader-frame)" />
+            <stop offset="1" stopColor="var(--loader-frame)" stopOpacity="0" />
           </linearGradient>
           <linearGradient
             id="bg_paint2"
@@ -105,10 +119,22 @@ export function BluegateBar({ width, height }: BluegateBarProps) {
             y2="161.225"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="white" />
-            <stop offset="0.155588" stopColor="white" stopOpacity="0.6" />
-            <stop offset="0.276887" stopColor="white" stopOpacity="0.3" />
-            <stop offset="0.614789" stopColor="white" stopOpacity="0" />
+            <stop stopColor="var(--loader-frame)" />
+            <stop
+              offset="0.155588"
+              stopColor="var(--loader-frame)"
+              stopOpacity="0.6"
+            />
+            <stop
+              offset="0.276887"
+              stopColor="var(--loader-frame)"
+              stopOpacity="0.3"
+            />
+            <stop
+              offset="0.614789"
+              stopColor="var(--loader-frame)"
+              stopOpacity="0"
+            />
           </linearGradient>
           <linearGradient
             id="bg_paint3"
@@ -118,8 +144,8 @@ export function BluegateBar({ width, height }: BluegateBarProps) {
             y2="142.08"
             gradientUnits="userSpaceOnUse"
           >
-            <stop stopColor="white" />
-            <stop offset="1" stopColor="white" stopOpacity="0" />
+            <stop stopColor="var(--loader-frame)" />
+            <stop offset="1" stopColor="var(--loader-frame)" stopOpacity="0" />
           </linearGradient>
         </defs>
       </svg>
@@ -132,6 +158,7 @@ export function BluegateBar({ width, height }: BluegateBarProps) {
         svgWidth={287}
         svgHeight={300}
         svgScale={1}
+        theme={resolvedTheme === 'light' ? 'light' : 'dark'}
         tintColor={{ r: 0.35, g: 0.55, b: 1.0 }}
         className="absolute inset-0"
       />

@@ -1,13 +1,11 @@
 'use client'
 
-import Image from 'next/image'
-import Link from 'next/link'
 import GithubIcon from '@/assets/icons/github.svg'
 import { useRef, useState } from 'react'
-import { cn } from '@/lib/utils/cn'
+import { cn } from 'cn'
 import { BluegateLoader } from '@/components/blugate-loader'
 import { Turnstile } from '@/components/turnstile'
-import { LINKS, TURNSTILE_SITE_KEY } from '@/lib/constants'
+import { TURNSTILE_SITE_KEY } from '@/lib/constants'
 import { useRouter } from 'next/navigation'
 import {
   BluegateApiError,
@@ -19,6 +17,8 @@ import {
 import { isScanDocument } from '@/lib/types'
 import { cacheReport } from '@/lib/report-cache'
 import { useQueryClient } from '@tanstack/react-query'
+import { SiteShell } from '@/components/site-shell'
+import { SiteButton } from '@/components/ui/site-button'
 
 export default function Home() {
   const [repoUrl, setRepoUrl] = useState('')
@@ -84,50 +84,55 @@ export default function Home() {
     }
   }
 
-  if (isLoading) return <BluegateLoader message="Submitting the repository" />
+  if (isLoading)
+    return (
+      <div className="bg-background text-foreground flex min-h-dvh flex-1 font-mono leading-normal tracking-normal">
+        <BluegateLoader message="Submitting the repository" />
+      </div>
+    )
 
   return (
-    <div className="border-border container flex flex-1 flex-col items-center border font-sans">
-      <main className="flex w-full flex-1 flex-col items-center justify-between gap-12 px-4 py-12 md:gap-16 md:px-16">
-        <div className="space-y-8 md:space-y-10">
-          <Image
-            src="/logo/full.svg"
-            alt="Bluegate"
-            width={295}
-            height={80}
-            className="mx-auto h-20 w-auto select-none"
-            priority
-          />
-          <h1 className="font-basic mx-auto max-w-180 text-center font-medium text-pretty text-[#CACACA] md:text-xl">
-            Paste a suspicious repo. Bluegate tells you what it tries to run
-            before you do
-          </h1>
-        </div>
-        <form
-          className="w-full max-w-209"
-          onSubmit={(event) => {
-            event.preventDefault()
-            void runScanFlow()
-          }}
-        >
-          <label
-            htmlFor="repo-url"
-            className="mb-3 block text-sm font-medium text-[#A9A9A9]"
+    <SiteShell home>
+      <section
+        className="border-y border-(--rule) bg-(--panel)"
+        aria-labelledby="scan-title"
+      >
+        <header className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2 border-b border-(--rule) px-5 py-3">
+          <h2 id="scan-title" className="font-serif text-[26px] leading-[1.2]">
+            Submit a repository
+          </h2>
+          <span className="text-xs leading-[1.55] text-(--ink-3)">
+            Public github.com
+          </span>
+        </header>
+        <div className="px-5 py-6">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault()
+              void runScanFlow()
+            }}
           >
-            REPOSITORY URL
-          </label>
-          <div className="flex">
-            <div className="flex w-full min-w-0">
-              <div
-                className={cn(
-                  'border-border grid size-14 shrink-0 place-items-center border md:size-18',
-                  errorField === 'repo' && 'border-[#F07979]'
-                )}
-              >
-                <GithubIcon aria-hidden="true" className="size-7 md:size-8" />
-              </div>
+            <label
+              htmlFor="repo-url"
+              className="block text-sm leading-[1.55] text-(--ink)"
+            >
+              Repository URL
+            </label>
+            <div
+              className={cn(
+                'mt-2 flex items-stretch border border-(--control-rule) bg-(--bg)',
+                errorField === 'repo' && 'border-(--error)'
+              )}
+            >
+              <span className="grid w-14 shrink-0 place-items-center border-r border-(--rule)">
+                <GithubIcon
+                  aria-hidden="true"
+                  className="size-6 text-(--ink)"
+                />
+              </span>
               <input
                 id="repo-url"
+                className="min-h-14 w-full min-w-0 bg-transparent px-4 py-3 text-(--ink) placeholder:text-(--ink-3) placeholder:opacity-100"
                 name="repo_url"
                 type="text"
                 required
@@ -138,11 +143,7 @@ export default function Home() {
                 value={repoUrl}
                 aria-label="Public GitHub repository URL"
                 aria-invalid={errorField === 'repo'}
-                aria-describedby="scan-error"
-                className={cn(
-                  'border-border h-14 w-full min-w-0 border-y border-r px-4 py-2.5 text-base font-medium placeholder:text-[#8F8F8F] md:h-18 md:px-6 md:py-5 md:text-lg',
-                  errorField === 'repo' && 'border-[#F07979]'
-                )}
+                aria-describedby="repo-hint scan-error"
                 placeholder="https://github.com/owner/repo"
                 onChange={(event) => {
                   setRepoUrl(event.target.value)
@@ -153,16 +154,29 @@ export default function Home() {
                 }}
               />
             </div>
-          </div>
-          <div className="mt-5">
-            <div className="mb-3 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-1 text-sm text-[#A9A9A9]">
-              <label htmlFor="scan-ref" className="font-medium">
-                REF
+            <p
+              id="repo-hint"
+              className="mt-2 text-xs leading-[1.65] text-(--ink-3)"
+            >
+              The ref is pinned to a commit before anything is read.
+            </p>
+            <div className="mt-6 flex flex-wrap items-baseline justify-between gap-x-3 gap-y-1">
+              <label
+                htmlFor="scan-ref"
+                className="block text-sm leading-[1.55] text-(--ink)"
+              >
+                Ref
               </label>
-              <span>Optional · branch, tag, or commit</span>
+              <span className="text-xs leading-[1.55] text-(--ink-3)">
+                Optional: branch, tag, or commit
+              </span>
             </div>
             <input
               id="scan-ref"
+              className={cn(
+                'mt-2 min-h-12 w-full border border-(--control-rule) bg-(--bg) px-3.5 py-2.5 text-(--ink) placeholder:text-(--ink-3) placeholder:opacity-100',
+                errorField === 'ref' && 'border-(--error)'
+              )}
               name="ref"
               type="text"
               maxLength={255}
@@ -172,10 +186,6 @@ export default function Home() {
               value={scanRef}
               aria-invalid={errorField === 'ref'}
               aria-describedby="ref-hint scan-error"
-              className={cn(
-                'border-border h-14 w-full min-w-0 border px-4 py-2.5 text-base font-medium placeholder:text-[#8F8F8F] md:px-6 md:text-lg',
-                errorField === 'ref' && 'border-[#F07979]'
-              )}
               placeholder="Default branch if empty"
               onChange={(event) => {
                 setScanRef(event.target.value)
@@ -187,50 +197,102 @@ export default function Home() {
             />
             <p
               id="ref-hint"
-              className="mt-2 text-sm leading-relaxed text-[#A9A9A9]"
+              className="mt-2 text-xs leading-[1.65] text-(--ink-3)"
             >
               Leave empty to use the URL’s ref or the repository’s default
               branch.
             </p>
-          </div>
-          {TURNSTILE_SITE_KEY && (
-            <Turnstile
-              key={challengeAttempt}
-              siteKey={TURNSTILE_SITE_KEY}
-              onToken={setToken}
-            />
-          )}
-          <button
-            type="submit"
-            disabled={Boolean(TURNSTILE_SITE_KEY && !token)}
-            className="border-border mt-6 h-14 w-full border bg-[#FAFAFA] px-6 text-lg font-semibold text-[#1F1F1F] hover:bg-[#DEDEDE] disabled:cursor-not-allowed disabled:opacity-50 md:h-16 md:text-xl"
-          >
-            Analyse
-          </button>
-          <div
-            id="scan-error"
-            role="alert"
-            className="mt-4 min-h-6 text-sm font-medium text-[#F07979]"
-          >
-            {error}
-          </div>
-        </form>
-        <footer className="flex w-full items-center justify-between gap-4 text-base font-medium text-[#A9A9A9] max-md:flex-col lg:text-xl">
-          {LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              target={link.href.startsWith('http') ? '_blank' : undefined}
-              rel={
-                link.href.startsWith('http') ? 'noopener noreferrer' : undefined
-              }
-              className="hover:text-[#CACACA] hover:underline"
+            {TURNSTILE_SITE_KEY && (
+              <Turnstile
+                key={challengeAttempt}
+                siteKey={TURNSTILE_SITE_KEY}
+                onToken={setToken}
+              />
+            )}
+            <button
+              type="submit"
+              disabled={Boolean(TURNSTILE_SITE_KEY && !token)}
+              className="mt-6 flex min-h-13 w-full items-center justify-center border border-(--fill) bg-(--fill) px-5 py-3 font-semibold text-(--fill-text) transition-colors duration-150 ease-out enabled:hover:bg-(--bg) enabled:hover:text-(--ink) disabled:cursor-not-allowed disabled:opacity-50"
             >
-              {link.label}
-            </Link>
-          ))}
-        </footer>
-      </main>
-    </div>
+              Scan this commit
+            </button>
+            <div
+              id="scan-error"
+              role="alert"
+              className="text-sm leading-[1.55] text-(--error) not-empty:mt-4"
+            >
+              {error}
+            </div>
+          </form>
+          <div className="mt-6 border-t border-(--rule) pt-5">
+            <p className="mb-2.5 text-xs leading-[1.55] text-(--ink-3)">
+              Fill an example URL
+            </p>
+            <div className="flex flex-wrap gap-2">
+              {['expressjs/express', 'pallets/flask'].map((repo) => (
+                <SiteButton
+                  key={repo}
+                  type="button"
+                  onClick={() => {
+                    setRepoUrl(`https://github.com/${repo}`)
+                    setError(null)
+                    setErrorField(null)
+                    document.getElementById('repo-url')?.focus()
+                  }}
+                >
+                  {repo}
+                </SiteButton>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+      <div className="grid grid-cols-1 border-y border-(--rule) md:grid-cols-2">
+        <section aria-labelledby="coverage-title" className="px-5 py-6">
+          <h2
+            id="coverage-title"
+            className="mb-4 font-serif text-[28px] leading-[1.1]"
+          >
+            What this scan covers
+          </h2>
+          <ul className="list-[square] pl-4.5 text-[13px] leading-[1.8] text-(--ink-2) [&_li+li]:mt-2.5">
+            <li>One commit, pinned to a SHA before anything is read.</li>
+            <li>
+              What clone, open, install, build, and run would execute, and the
+              files they load.
+            </li>
+            <li>
+              Quoted evidence for every finding. Coverage comes before the
+              verdict.
+            </li>
+          </ul>
+        </section>
+        <section
+          aria-labelledby="limits-title"
+          className="border-t border-(--rule) px-5 py-6 md:border-t-0 md:border-l"
+        >
+          <h2
+            id="limits-title"
+            className="mb-4 font-serif text-[28px] leading-[1.1]"
+          >
+            Limits worth knowing
+          </h2>
+          <ul className="list-[square] pl-4.5 text-[13px] leading-[1.8] text-(--ink-2) [&_li+li]:mt-2.5">
+            <li>
+              Public GitHub repositories only. Downloaded assets and
+              dependencies can change after a scan.
+            </li>
+            <li>
+              CLEAN means the scan finished and found nothing. It is not a
+              certificate of safety.
+            </li>
+            <li>
+              PARTIAL means something required did not run. It is not a weak
+              CLEAN.
+            </li>
+          </ul>
+        </section>
+      </div>
+    </SiteShell>
   )
 }

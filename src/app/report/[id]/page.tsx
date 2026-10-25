@@ -2,8 +2,8 @@
 
 import { BluegateLoader } from '@/components/blugate-loader'
 import { Report } from '@/components/report'
-import { LINKS } from '@/lib/constants'
-import Image from 'next/image'
+import { SiteShell } from '@/components/site-shell'
+import { SiteButton, SiteButtonLink } from '@/components/ui/site-button'
 import Link from 'next/link'
 import { useParams } from 'next/navigation'
 import { useQuery, useQueryClient } from '@tanstack/react-query'
@@ -65,83 +65,64 @@ export default function ReportPage() {
         (!error || isRetryableScanError(error))))
   )
     return (
-      <BluegateLoader
-        status={data?.status}
-        repo={data?.input.repo}
-        polling
-        error={waitingError ? mapApiErrorToInlineMessage(waitingError) : null}
-      />
+      <div className="bg-background text-foreground flex min-h-dvh flex-1 font-mono leading-normal tracking-normal">
+        <BluegateLoader
+          status={data?.status}
+          repo={data?.input.repo}
+          polling
+          error={waitingError ? mapApiErrorToInlineMessage(waitingError) : null}
+        />
+      </div>
     )
 
   if (!validId || !data || (error && !isTerminalScan(data))) {
     const retryable = error && isRetryableScanError(error)
     return (
-      <main className="border-border container flex flex-1 flex-col items-center justify-center gap-6 border px-8 py-12 text-center">
-        <h1 className="font-serif text-4xl">
-          {validId ? 'Report unavailable' : 'Invalid report link'}
-        </h1>
-        <p role="alert" className="max-w-2xl text-base text-[#F07979]">
-          {validId
-            ? mapApiErrorToInlineMessage(error)
-            : 'This link is invalid or belongs to the previous scanner. Start a new scan to use the current API.'}
-        </p>
-        {retryable && (
-          <p className="text-sm text-[#A9A9A9]">
-            {error instanceof BluegateApiError && error.retryAfter
-              ? `Waiting ${error.retryAfter} seconds before the next automatic check.`
-              : 'Checking again automatically. You can return to this link later.'}
-          </p>
-        )}
-        {validId && !retryable && (
-          <button
-            type="button"
-            onClick={() => void query.refetch()}
-            className="border-border border px-6 py-3 hover:bg-[#1F1F1F]"
+      <SiteShell>
+        <section className="flex min-h-80 flex-col items-start justify-center gap-6 border-y border-(--rule) px-6 py-10">
+          <h1 className="font-serif text-[clamp(38px,6vw,64px)] leading-[1.1]">
+            {validId ? 'Report unavailable' : 'Invalid report link'}
+          </h1>
+          <p
+            role="alert"
+            className="max-w-[65ch] text-sm leading-[1.8] text-(--error)"
           >
-            Try again
-          </button>
-        )}
-        <Link href="/" className="text-base underline underline-offset-4">
-          Start a new scan
-        </Link>
-      </main>
+            {validId
+              ? mapApiErrorToInlineMessage(error)
+              : 'This link is invalid or belongs to the previous scanner. Start a new scan to use the current API.'}
+          </p>
+          {retryable && (
+            <p className="max-w-[65ch] text-sm leading-[1.8] text-(--ink-2)">
+              {error instanceof BluegateApiError && error.retryAfter
+                ? `Waiting ${error.retryAfter} seconds before the next automatic check.`
+                : 'Checking again automatically. You can return to this link later.'}
+            </p>
+          )}
+          {validId && !retryable && (
+            <SiteButton type="button" onClick={() => void query.refetch()}>
+              Try again
+            </SiteButton>
+          )}
+          <Link href="/" className="text-base underline underline-offset-4">
+            Start a new scan
+          </Link>
+        </section>
+      </SiteShell>
     )
   }
 
   return (
-    <div className="border-border container flex flex-1 flex-col items-center border px-0 font-sans">
-      <main className="flex w-full min-w-0 flex-1 flex-col items-center py-12">
-        <header className="border-border mb-18 flex w-full justify-between border-y">
-          <Link
-            href="/"
-            aria-label="Bluegate home"
-            className="border-border grid h-14 shrink-0 place-items-center border-r px-6 md:h-18 md:px-12"
-          >
-            <Image
-              src="/logo/full.svg"
-              alt="Bluegate"
-              width={118}
-              height={32}
-              className="h-6 w-auto select-none md:h-8"
-              priority
-            />
-          </Link>
-          <Link
-            href="/"
-            className="border-border grid h-14 shrink-0 place-items-center border-l px-6 text-base font-semibold text-[#E6E6E6] hover:bg-[#FAFAFA] hover:text-[#1F1F1F] md:h-18 md:px-12 md:text-xl"
-          >
-            New Scan
-          </Link>
-        </header>
+    <SiteShell>
+      <div className="bg-background text-foreground flex w-full min-w-0 flex-col items-center border-b border-(--rule) pb-12 font-mono leading-normal tracking-normal">
         {error && (
-          <p role="alert" className="mb-6 px-6 text-sm text-[#F6C76A]">
+          <p role="alert" className="mb-6 px-6 text-sm text-(--scan-partial)">
             Showing the saved report. {mapApiErrorToInlineMessage(error)}
           </p>
         )}
         {data.status === 'failed' && (
           <div
             role="alert"
-            className="border-border mb-6 w-full border-y p-6 text-[#F07979]"
+            className="border-border mb-6 w-full border-y p-6 text-(--scan-failed)"
           >
             {data.error || 'The scan failed before analysis could finish.'}
             {data.error_code && (
@@ -150,22 +131,7 @@ export default function ReportPage() {
           </div>
         )}
         <Report data={data} scanId={scanId} />
-        <footer className="flex w-full items-center justify-between gap-4 px-8 text-base font-medium text-[#A9A9A9] max-md:flex-col lg:px-12 lg:text-xl">
-          {LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              target={link.href.startsWith('http') ? '_blank' : undefined}
-              rel={
-                link.href.startsWith('http') ? 'noopener noreferrer' : undefined
-              }
-              className="hover:text-[#CACACA] hover:underline"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </footer>
-      </main>
-    </div>
+      </div>
+    </SiteShell>
   )
 }

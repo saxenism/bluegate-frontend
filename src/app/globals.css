@@ -1,10 +1,82 @@
 @import 'tailwindcss';
 
+@custom-variant dark (&:where([data-theme='dark'], [data-theme='dark'] *));
+
 :root {
   --background: #0a0a0a;
   --foreground: #ebebeb;
   --color-border: #2e2e2e;
   --color-red: #dc0000;
+  --bg: #0a0a0a;
+  --panel: #121212;
+  --panel-2: #1f1f1f;
+  --ink: #fafafa;
+  --ink-2: #a9a9a9;
+  --ink-3: #8f8f8f;
+  --rule: #2e2e2e;
+  --control-rule: #757575;
+  --fill: #e6e6e6;
+  --fill-text: #292929;
+  --error: #f07979;
+  --scan-muted: #a9a9a9;
+  --scan-detail: #cacaca;
+  --scan-code: #111111;
+  --scan-hover: #1f1f1f;
+  --scan-score-border: #454545;
+  --scan-progress-track: #1f1f1f;
+  --scan-progress-fill: #454545;
+  --scan-clean: #56c58a;
+  --scan-suspicious: #f6a84b;
+  --scan-malicious: #f07979;
+  --scan-partial: #f6c76a;
+  --scan-critical: #f07979;
+  --scan-high: #f59b8f;
+  --scan-medium: #f6c76a;
+  --scan-low: #93c5a8;
+  --scan-info: #a0b6cf;
+  --scan-unknown: #a9a9a9;
+  --scan-failed: #f07979;
+  --loader-frame: #ffffff;
+  --loader-center: #ffffff;
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  --background: #fafafa;
+  --foreground: #191919;
+  --color-border: #c9c9c9;
+  --bg: #fafafa;
+  --panel: #ffffff;
+  --panel-2: #f2f2f2;
+  --ink: #191919;
+  --ink-2: #454545;
+  --ink-3: #666666;
+  --rule: #c9c9c9;
+  --control-rule: #858585;
+  --fill: #191919;
+  --fill-text: #fafafa;
+  --error: #a33122;
+  --scan-muted: #454545;
+  --scan-detail: #454545;
+  --scan-code: #f2f2f2;
+  --scan-hover: #f2f2f2;
+  --scan-score-border: #858585;
+  --scan-progress-track: #e5e5e5;
+  --scan-progress-fill: #666666;
+  --scan-clean: #00702e;
+  --scan-suspicious: #8a4800;
+  --scan-malicious: #b00000;
+  --scan-partial: #7a5100;
+  --scan-critical: #b00000;
+  --scan-high: #a33122;
+  --scan-medium: #7a5100;
+  --scan-low: #28613e;
+  --scan-info: #365d83;
+  --scan-unknown: #454545;
+  --scan-failed: #b00000;
+  --loader-frame: #191919;
+  --loader-center: #f2f2f2;
+  color-scheme: light;
 }
 
 @theme inline {
@@ -29,17 +101,17 @@ button,
 }
 
 :focus-visible {
-  outline: 2px solid #cacaca;
+  outline: 2px solid var(--ink);
   outline-offset: 4px;
 }
 
 ::selection {
-  color: #0a0a0a;
-  background: #cacaca;
+  color: var(--bg);
+  background: var(--ink);
 }
 
 input {
-  caret-color: #ebebeb;
+  caret-color: currentColor;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -72,5 +144,23 @@ input {
   to {
     opacity: 1;
     transform: translateY(0);
+  }
+}
+
+/* The paper border needs image slicing; layout stays in Tailwind classes. */
+.paper-article {
+  --ink: #161616;
+  --ink-2: #3e3e3e;
+  --ink-3: #4b4b4b;
+  --rule: #16161630;
+  --control-rule: #16161688;
+  --panel-2: #ffffff40;
+  border-image: url('/assets/privacy-scroll.webp') 230 125 215 125 fill /
+    var(--paper-border) / 0 stretch;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
   }
 }

@@ -16,7 +16,7 @@ export function Stepper({
   message?: string
 }) {
   return (
-    <p className="text-center text-xl leading-relaxed text-white">
+    <p className="text-foreground text-center text-xl leading-relaxed">
       {message || (status ? STATUS_LABELS[status] : 'Loading the scan')}
     </p>
   )
