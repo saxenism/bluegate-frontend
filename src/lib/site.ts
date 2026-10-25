@@ -1,6 +1,10 @@
 import type { Metadata } from 'next'
 
 export const SITE_URL = 'https://bluegate.bluethroatlabs.com'
+export const SITE_NAME = 'BlueGate by Bluethroat Labs'
+export const SOCIAL_IMAGE_PATH = '/opengraph-image.png'
+export const SOCIAL_IMAGE_ALT =
+  'BlueGate by Bluethroat Labs. Check a repository before you trust it.'
 export const SOURCE_URL = 'https://github.com/BluethroatLabs/BlueGate'
 export const SITE_LINKS = [
   { href: '/about', label: 'About' },
@@ -24,9 +28,23 @@ export function pageMetadata(
       title,
       description,
       url: path,
-      siteName: 'BlueGate by Bluethroat Labs',
+      siteName: SITE_NAME,
       type: 'website',
+      images: [
+        {
+          url: SOCIAL_IMAGE_PATH,
+          width: 1200,
+          height: 630,
+          type: 'image/png',
+          alt: SOCIAL_IMAGE_ALT,
+        },
+      ],
     },
-    twitter: { card: 'summary', title, description },
+    twitter: {
+      card: 'summary_large_image',
+      title,
+      description,
+      images: [SOCIAL_IMAGE_PATH],
+    },
   }
 }
