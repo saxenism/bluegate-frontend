@@ -27,18 +27,18 @@ export function BluegateLoader({
       <div role="status" aria-live="polite" className="max-w-2xl space-y-4">
         <Stepper status={status} message={message} />
         {repo && (
-          <p className="font-basic text-sm wrap-anywhere text-[#A9A9A9]">
+          <p className="font-basic text-sm wrap-anywhere text-(--scan-muted)">
             {repo}
           </p>
         )}
         {polling && (
-          <p className="font-basic text-sm text-[#A9A9A9]">
+          <p className="font-basic text-sm text-(--scan-muted)">
             This page updates automatically. You can refresh or return to this
             link while the scan continues.
           </p>
         )}
         {error && (
-          <p className="font-basic text-sm text-[#F6C76A]">
+          <p className="font-basic text-sm text-(--scan-partial)">
             {error} Updates will resume automatically.
           </p>
         )}
@@ -46,7 +46,7 @@ export function BluegateLoader({
       {polling && (
         <Link
           href="/"
-          className="mt-4 text-sm underline underline-offset-4 hover:text-white"
+          className="hover:text-foreground mt-4 text-sm underline underline-offset-4"
         >
           Start another scan
         </Link>

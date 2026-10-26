@@ -1,55 +1,19 @@
-import { LINKS } from '@/lib/constants'
-import Image from 'next/image'
-import Link from 'next/link'
+import { SiteButtonLink } from '@/components/ui/site-button'
+import { SiteShell } from '@/components/site-shell'
 
 export default function NotFound() {
   return (
-    <div className="border-border container flex flex-1 flex-col items-center border font-sans">
-      <main className="flex w-full flex-1 flex-col items-center justify-between gap-12 px-8 py-12 md:px-16">
-        <Link href="/">
-          <Image
-            src="/logo/full.svg"
-            alt="Next.js logo"
-            width={177}
-            height={48}
-            className="mx-auto h-12 w-auto select-none"
-            priority
-          />
-        </Link>
-
-        <div className="space-y-10 text-center">
-          <p className="text-center text-[clamp(7rem,18vw,12rem)] leading-none font-semibold tracking-[-0.04em] select-none">
-            404
-          </p>
-
-          <p className="font-basic mx-auto max-w-180 text-center text-base font-medium text-pretty text-[#CACACA] md:text-xl">
-            We checked. This page doesn&apos;t exist and never tried to install
-            anything.
-          </p>
-
-          <Link
-            href="/"
-            className="border-border inline-flex h-15 shrink-0 items-center border bg-[#FAFAFA] px-8 text-lg font-semibold text-[#1F1F1F] hover:bg-[color-mix(in_srgb,#FAFAFA,#1F1F1F_15%)] md:h-18 md:px-12 md:text-xl"
-          >
-            Back to the gate
-          </Link>
-        </div>
-
-        <div></div>
-
-        <footer className="flex w-full items-center justify-between gap-4 text-xl font-medium text-[#8F8F8F] max-md:flex-col">
-          {LINKS.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              target={link.href.startsWith('http') ? '_blank' : undefined}
-              className="hover:text-[#CACACA] hover:underline"
-            >
-              {link.label}
-            </Link>
-          ))}
-        </footer>
-      </main>
-    </div>
+    <SiteShell>
+      <section className="flex min-h-80 flex-col items-start justify-center gap-6 border-y border-(--rule) px-6 py-10">
+        <h1 className="font-serif text-[clamp(38px,6vw,64px)] leading-[1.1]">
+          Page not found
+        </h1>
+        <p className="max-w-[65ch] text-sm leading-[1.8] text-(--ink-2)">
+          We checked. This page doesn&apos;t exist and never tried to install
+          anything.
+        </p>
+        <SiteButtonLink href="/">Back to the scanner</SiteButtonLink>
+      </section>
+    </SiteShell>
   )
 }

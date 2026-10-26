@@ -1,4 +1,4 @@
-# Bluegate frontend
+# BlueGate frontend
 
 A Next.js frontend for the current BlueGate scanner API. Paste a public GitHub
 repository (or a branch/commit URL) to scan it, follow its progress, and share

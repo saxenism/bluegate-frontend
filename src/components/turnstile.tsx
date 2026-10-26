@@ -2,13 +2,14 @@
 
 import Script from 'next/script'
 import { useCallback, useEffect, useRef, useState } from 'react'
+import { useTheme } from 'next-themes'
 
 type TurnstileApi = {
   render: (
     container: HTMLElement,
     options: {
       sitekey: string
-      theme: 'dark'
+      theme: 'dark' | 'light'
       size: 'flexible'
       callback: (token: string) => void
       'expired-callback': () => void
@@ -32,6 +33,7 @@ export function Turnstile({
   siteKey: string
   onToken: (token: string | null) => void
 }) {
+  const { resolvedTheme } = useTheme()
   const container = useRef<HTMLDivElement>(null)
   const widget = useRef<string | null>(null)
   const [error, setError] = useState<string | null>(null)
@@ -41,7 +43,7 @@ export function Turnstile({
       return
     widget.current = window.turnstile.render(container.current, {
       sitekey: siteKey,
-      theme: 'dark',
+      theme: resolvedTheme === 'light' ? 'light' : 'dark',
       size: 'flexible',
       callback: (token) => {
         setError(null)
@@ -54,7 +56,7 @@ export function Turnstile({
         setError('Verification could not finish. Try the check again.')
       },
     })
-  }, [siteKey, onToken])
+  }, [siteKey, onToken, resolvedTheme])
 
   useEffect(() => {
     renderWidget()
@@ -80,7 +82,7 @@ export function Turnstile({
       />
       <div ref={container} />
       {error && (
-        <p role="alert" className="text-sm text-[#F07979]">
+        <p role="alert" className="text-sm text-(--error)">
           {error}{' '}
           {canRetry && (
             <button

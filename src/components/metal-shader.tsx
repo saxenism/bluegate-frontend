@@ -1,6 +1,6 @@
 'use client'
 
-import { cn } from '@/lib/utils/cn'
+import { cn } from 'cn'
 import { useRef, useEffect, useCallback } from 'react'
 
 export interface MetalConfig {

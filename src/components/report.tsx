@@ -38,28 +38,29 @@ import {
   type SurfaceEntry,
   type Verdict,
 } from '@/lib/types'
-import { cn } from '@/lib/utils/cn'
+import { cn } from 'cn'
 
 type Tone = Verdict | Severity | 'unknown' | 'failed'
 const COLORS: Record<Tone, string> = {
-  clean: '#56C58A',
-  suspicious: '#F6A84B',
-  malicious: '#F07979',
-  partial: '#F6C76A',
-  critical: '#F07979',
-  high: '#F59B8F',
-  medium: '#F6C76A',
-  low: '#93C5A8',
-  info: '#A0B6CF',
-  unknown: '#A9A9A9',
-  failed: '#F07979',
+  clean: 'var(--scan-clean)',
+  suspicious: 'var(--scan-suspicious)',
+  malicious: 'var(--scan-malicious)',
+  partial: 'var(--scan-partial)',
+  critical: 'var(--scan-critical)',
+  high: 'var(--scan-high)',
+  medium: 'var(--scan-medium)',
+  low: 'var(--scan-low)',
+  info: 'var(--scan-info)',
+  unknown: 'var(--scan-unknown)',
+  failed: 'var(--scan-failed)',
 }
 const FORMATS: { value: ReportFormat; label: string; extension: string }[] = [
   { value: 'json', label: 'Download JSON', extension: 'json' },
   { value: 'text', label: 'Download plain text', extension: 'txt' },
   { value: 'agent', label: 'Download agent report', extension: 'agent.txt' },
 ]
-const SECTION_TITLE = 'font-basic mb-8 text-base font-medium text-[#A9A9A9]'
+const SECTION_TITLE =
+  'font-basic mb-8 text-base font-medium text-(--scan-muted)'
 
 export function Report({
   data,
@@ -136,7 +137,7 @@ export function Report({
             <h1 className="font-basic text-xl font-semibold lg:text-2xl">
               {data.input.repo || 'Repository not reported'}
             </h1>
-            <div className="font-basic flex flex-wrap gap-x-8 gap-y-1 text-sm text-[#A9A9A9]">
+            <div className="font-basic flex flex-wrap gap-x-8 gap-y-1 text-sm text-(--scan-muted)">
               <p>
                 COMMIT:{' '}
                 <span
@@ -157,7 +158,7 @@ export function Report({
             </div>
           </div>
         </div>
-        <div className="border-border flex border-b text-[#A9A9A9] max-lg:self-end">
+        <div className="border-border flex border-b text-(--scan-muted) max-lg:self-end">
           <Popover open={downloadOpen} onOpenChange={setDownloadOpen}>
             <PopoverTrigger asChild>
               <button
@@ -165,7 +166,7 @@ export function Report({
                 aria-label={
                   downloaded ? 'Report downloaded' : 'Download report'
                 }
-                className="border-border grid size-16 place-items-center border-l hover:bg-[#1F1F1F] lg:size-18"
+                className="border-border grid size-16 place-items-center border-l hover:bg-(--scan-hover) lg:size-18"
               >
                 {downloaded ? (
                   <CheckIcon className="size-6" />
@@ -174,7 +175,7 @@ export function Report({
                 )}
               </button>
             </PopoverTrigger>
-            <PopoverContent align="end" className="w-auto p-0">
+            <PopoverContent align="end" className="w-auto p-0 font-mono">
               <PopoverTitle className="sr-only">Download report</PopoverTitle>
               {FORMATS.map((format) => (
                 <button
@@ -182,7 +183,7 @@ export function Report({
                   type="button"
                   disabled={downloading}
                   onClick={() => void download(format.value)}
-                  className="px-8 py-4 text-left text-base hover:bg-[#1F1F1F] disabled:opacity-50"
+                  className="px-8 py-4 text-left text-base hover:bg-(--scan-hover) disabled:opacity-50"
                 >
                   {downloading ? 'Preparing download…' : format.label}
                 </button>
@@ -193,7 +194,7 @@ export function Report({
             type="button"
             aria-label={copied ? 'Report link copied' : 'Copy report link'}
             onClick={() => void copyLink()}
-            className="border-border grid size-16 place-items-center border-l hover:bg-[#1F1F1F] lg:size-18"
+            className="border-border grid size-16 place-items-center border-l hover:bg-(--scan-hover) lg:size-18"
           >
             {copied ? (
               <CheckIcon className="size-6" />
@@ -213,13 +214,13 @@ export function Report({
       {actionError && (
         <p
           role="alert"
-          className="border-border border-b p-4 text-[#F07979] lg:px-8"
+          className="border-border border-b p-4 text-(--scan-failed) lg:px-8"
         >
           {actionError}
         </p>
       )}
       {isExpired(data) && (
-        <p className="border-border border-b p-4 text-sm text-[#F6C76A] lg:px-8">
+        <p className="border-border border-b p-4 text-sm text-(--scan-partial) lg:px-8">
           This is a historical result for the commit shown. Its cache validity
           has expired; start a new scan for a current assessment.
         </p>
@@ -237,7 +238,7 @@ export function Report({
             </span>
             {score != null && 'of 100'}
           </p>
-          <p className="font-basic mt-3 text-sm text-[#A9A9A9]">
+          <p className="font-basic mt-3 text-sm text-(--scan-muted)">
             {score == null
               ? 'The scanner did not produce a score.'
               : 'Higher scores indicate greater risk.'}
@@ -250,7 +251,7 @@ export function Report({
           </p>
           {view.required.length ? (
             <>
-              <p className="font-basic mb-2 text-sm text-[#A9A9A9]">
+              <p className="font-basic mb-2 text-sm text-(--scan-muted)">
                 {view.completed} of {view.required.length} required stages
                 completed
               </p>
@@ -261,13 +262,13 @@ export function Report({
               />
             </>
           ) : (
-            <p className="font-basic text-sm text-[#A9A9A9]">
+            <p className="font-basic text-sm text-(--scan-muted)">
               Stage completion was not reported.
             </p>
           )}
           <a
             href="#coverage"
-            className="mt-5 inline-block text-sm underline underline-offset-4 hover:text-white"
+            className="hover:text-foreground mt-5 inline-block text-sm underline underline-offset-4"
           >
             View stages and gaps
           </a>
@@ -279,7 +280,7 @@ export function Report({
               ? 'Not reported'
               : `${surface.length} ${surface.length === 1 ? 'entry' : 'entries'}`}
           </p>
-          <p className="font-basic text-sm text-[#A9A9A9]">
+          <p className="font-basic text-sm text-(--scan-muted)">
             {surface.length
               ? `${unattended} ${unattended === 1 ? 'entry has' : 'entries have'} no prompt or user gate. Entries are listed whether or not they are suspicious.`
               : 'Triggers and commands appear here when execution mapping is available.'}
@@ -289,7 +290,9 @@ export function Report({
 
       <div
         className="border-border space-y-3 border-b p-6 lg:p-8"
-        style={{ backgroundColor: `${COLORS[verdict]}0D` }}
+        style={{
+          backgroundColor: `color-mix(in srgb, ${COLORS[verdict]} 5%, transparent)`,
+        }}
       >
         <h2
           className="text-xl font-semibold"
@@ -300,11 +303,11 @@ export function Report({
               ? 'This scan did not finish.'
               : 'No verdict reason was reported.')}
         </h2>
-        <p className="font-basic max-w-5xl text-base text-[#CACACA]">
+        <p className="font-basic max-w-5xl text-base text-(--scan-detail)">
           {getRecommendation(data)}
         </p>
         {data.static_verdict && data.static_verdict !== data.verdict && (
-          <p className="font-basic text-sm text-[#A9A9A9]">
+          <p className="font-basic text-sm text-(--scan-muted)">
             Static verdict: {data.static_verdict.toUpperCase()}. The final
             verdict also accounts for analysis coverage and later stages.
           </p>
@@ -340,11 +343,11 @@ export function Report({
             ))}
           </div>
         ) : (
-          <p className="font-basic mb-6 text-[#A9A9A9]">
+          <p className="font-basic mb-6 text-(--scan-muted)">
             Stage details are unavailable.
           </p>
         )}
-        <p className="font-basic mb-6 text-sm text-[#A9A9A9]">
+        <p className="font-basic mb-6 text-sm text-(--scan-muted)">
           Detonated tiers:{' '}
           {data.coverage?.tiers_detonated?.length
             ? data.coverage.tiers_detonated.join(', ')
@@ -360,7 +363,7 @@ export function Report({
                   renderItem={(item, index) => (
                     <li
                       key={`${index}-${item}`}
-                      className="font-basic py-1 text-sm text-[#CACACA]"
+                      className="font-basic py-1 text-sm text-(--scan-detail)"
                     >
                       {item}
                     </li>
@@ -370,14 +373,14 @@ export function Report({
             ))}
           </div>
         ) : (
-          <p className="font-basic text-[#A9A9A9]">
+          <p className="font-basic text-(--scan-muted)">
             {data.complete
               ? 'No coverage gaps were listed.'
               : 'This analysis is incomplete. The scanner did not list the missing coverage.'}
           </p>
         )}
         {data.listing?.truncated && (
-          <p className="font-basic mt-6 text-[#F6C76A]">
+          <p className="font-basic mt-6 text-(--scan-partial)">
             This report contains a limited selection of findings or execution
             entries. The score uses the full analysis. Expanding a list shows
             all entries included in this document.
@@ -399,10 +402,12 @@ export function Report({
                 className="h-12 min-w-0 flex-1 border lg:h-18"
                 style={{
                   borderColor:
-                    index < Math.round(score / 4) ? COLORS[verdict] : '#454545',
+                    index < Math.round(score / 4)
+                      ? COLORS[verdict]
+                      : 'var(--scan-score-border)',
                   backgroundColor:
                     index < Math.round(score / 4)
-                      ? `${COLORS[verdict]}66`
+                      ? `color-mix(in srgb, ${COLORS[verdict]} 40%, transparent)`
                       : 'transparent',
                 }}
               />
@@ -426,7 +431,7 @@ export function Report({
                   <p className="font-basic font-semibold">
                     {component.title || component.rule}
                   </p>
-                  <p className="font-basic text-sm text-[#A9A9A9]">
+                  <p className="font-basic text-sm text-(--scan-muted)">
                     {component.rule} · {component.description}
                   </p>
                 </div>
@@ -441,11 +446,11 @@ export function Report({
           </EmptyState>
         )}
         {getBreakdownNotes(data.breakdown).map((note) => (
-          <p key={note} className="font-basic mt-5 text-sm text-[#A9A9A9]">
+          <p key={note} className="font-basic mt-5 text-sm text-(--scan-muted)">
             {note}
           </p>
         ))}
-        <p className="font-basic mt-6 text-sm text-[#A9A9A9]">
+        <p className="font-basic mt-6 text-sm text-(--scan-muted)">
           Scores reflect the findings, execution tiers, and scoring caps. The
           final verdict can also reflect incomplete coverage or later analysis.
         </p>
@@ -530,7 +535,7 @@ export function Report({
         />
       </div>
       {data.dependencies?.use_time_resolution && (
-        <p className="border-border font-basic border-b p-6 text-sm text-[#F6C76A] lg:p-8">
+        <p className="border-border font-basic border-b p-6 text-sm text-(--scan-partial) lg:p-8">
           Some dependencies are resolved when the repository is used and can
           change after this scan.
           {data.dependencies.resolved_at && (
@@ -550,7 +555,7 @@ export function Report({
             renderItem={(item, index) => (
               <li
                 key={index}
-                className="font-basic py-2 text-sm text-[#CACACA]"
+                className="font-basic py-2 text-sm text-(--scan-detail)"
               >
                 {recordSummary(item) || 'Submodule details unavailable'}
               </li>
@@ -561,14 +566,14 @@ export function Report({
       {data.clone_command && (
         <div className="border-border border-b p-6 lg:p-8">
           <h2 className={SECTION_TITLE}>THE SCANNED COMMIT</h2>
-          <p className="font-basic mb-4 text-sm text-[#A9A9A9]">
+          <p className="font-basic mb-4 text-sm text-(--scan-muted)">
             The branch may have moved since this scan. This command identifies
             the commit that was analysed.
           </p>
           <CodeBlock>{data.clone_command}</CodeBlock>
         </div>
       )}
-      <div className="font-basic space-y-2 p-6 text-sm text-[#A9A9A9] lg:p-8">
+      <div className="font-basic space-y-2 p-6 text-sm text-(--scan-muted) lg:p-8">
         <p>Scan {scanId}</p>
         {data.analyzer.version && (
           <p>
@@ -602,7 +607,10 @@ function Badge({
         'inline-block px-3 py-1.5 text-sm font-semibold uppercase',
         className
       )}
-      style={{ color, backgroundColor: `${color}18` }}
+      style={{
+        color,
+        backgroundColor: `color-mix(in srgb, ${color} 9.4%, transparent)`,
+      }}
     >
       {children}
     </span>
@@ -626,7 +634,7 @@ function ReportDate({ value }: { value: string }) {
 
 function CodeBlock({ children }: { children: ReactNode }) {
   return (
-    <pre className="border-border max-w-full overflow-x-auto border bg-[#111111] p-4 text-sm leading-relaxed wrap-anywhere whitespace-pre-wrap">
+    <pre className="border-border max-w-full overflow-x-auto border bg-(--scan-code) p-4 text-sm leading-relaxed wrap-anywhere whitespace-pre-wrap">
       <code>{children}</code>
     </pre>
   )
@@ -634,7 +642,7 @@ function CodeBlock({ children }: { children: ReactNode }) {
 
 function EmptyState({ children }: { children: ReactNode }) {
   return (
-    <p className="border-border font-basic border p-6 text-base text-[#A9A9A9]">
+    <p className="border-border font-basic border p-6 text-base text-(--scan-muted)">
       {children}
     </p>
   )
@@ -649,7 +657,7 @@ function ListingNote({
 }) {
   if (total == null || total <= listed) return null
   return (
-    <p className="font-basic mb-4 text-sm text-[#F6C76A]">
+    <p className="font-basic mb-4 text-sm text-(--scan-partial)">
       Showing {listed} of {total} entries. The API omitted the remaining entries
       from this document.
     </p>
@@ -675,7 +683,7 @@ function ExpandableList<T>({
           type="button"
           aria-expanded={expanded}
           onClick={() => setExpanded((previous) => !previous)}
-          className="border-border mt-4 w-full border px-6 py-4 text-sm font-medium hover:bg-[#1F1F1F]"
+          className="border-border mt-4 w-full border px-6 py-4 text-sm font-medium hover:bg-(--scan-hover)"
         >
           {expanded ? 'SHOW LESS' : `SHOW ${items.length - 10} MORE`}
         </button>
@@ -707,7 +715,7 @@ function FindingDetails({
             </p>
             <div className="flex flex-wrap items-center gap-3">
               <Badge tone={tone}>{tone}</Badge>
-              <span className="text-sm font-normal text-[#A9A9A9]">
+              <span className="text-sm font-normal text-(--scan-muted)">
                 {finding.file}
                 {finding.line != null && ` · line ${finding.line}`}
               </span>
@@ -715,23 +723,25 @@ function FindingDetails({
           </div>
         </AccordionTrigger>
         <AccordionContent className="border-border space-y-6 border-t border-dashed p-6 lg:px-8">
-          <p className="font-basic text-sm text-[#A9A9A9]">
+          <p className="font-basic text-sm text-(--scan-muted)">
             {finding.rule_id || 'Rule not reported'} ·{' '}
             {humanize(finding.tier || finding.reach)} · {humanize(finding.gate)}
           </p>
           {finding.detail && (
-            <p className="font-basic text-base text-[#CACACA]">
+            <p className="font-basic text-base text-(--scan-detail)">
               {finding.detail}
             </p>
           )}
           {text(finding.entry) && (
-            <p className="font-basic text-sm text-[#A9A9A9]">
+            <p className="font-basic text-sm text-(--scan-muted)">
               Entry: {text(finding.entry)}
             </p>
           )}
           {finding.evidence && (
             <div>
-              <h3 className="mb-3 text-sm text-[#A9A9A9]">QUOTED EVIDENCE</h3>
+              <h3 className="mb-3 text-sm text-(--scan-muted)">
+                QUOTED EVIDENCE
+              </h3>
               <CodeBlock>{finding.evidence}</CodeBlock>
             </div>
           )}
@@ -746,7 +756,7 @@ function SurfaceCard({ entry }: { entry: SurfaceEntry }) {
     <li className="border-border min-w-0 space-y-4 border p-6 lg:p-8">
       <div className="flex flex-wrap items-center gap-3">
         <span className="font-semibold uppercase">{humanize(entry.tier)}</span>
-        <span className="text-sm text-[#A9A9A9]">
+        <span className="text-sm text-(--scan-muted)">
           {entry.gate === 'none'
             ? 'No prompt or user gate'
             : humanize(entry.gate)}
@@ -756,29 +766,29 @@ function SurfaceCard({ entry }: { entry: SurfaceEntry }) {
         {entry.trigger || entry.kind || 'Execution entry'}
       </h3>
       {entry.file && (
-        <p className="font-basic text-sm text-[#A9A9A9]">
+        <p className="font-basic text-sm text-(--scan-muted)">
           {entry.file}
           {entry.line != null && ` · line ${entry.line}`}
         </p>
       )}
       {entry.command && <CodeBlock>{entry.command}</CodeBlock>}
       {Boolean(entry.loads?.length) && (
-        <p className="font-basic text-sm text-[#A9A9A9]">
+        <p className="font-basic text-sm text-(--scan-muted)">
           Loads: {entry.loads?.join(', ')}
         </p>
       )}
       {Boolean(entry.unresolved?.length) && (
-        <p className="font-basic text-sm text-[#F6C76A]">
+        <p className="font-basic text-sm text-(--scan-partial)">
           Unresolved: {entry.unresolved?.join(', ')}
         </p>
       )}
       {Boolean(entry.platforms?.length) && (
-        <p className="font-basic text-sm text-[#A9A9A9]">
+        <p className="font-basic text-sm text-(--scan-muted)">
           Platforms: {entry.platforms?.join(', ')}
         </p>
       )}
       {entry.detonatable === false && (
-        <p className="font-basic text-sm text-[#A9A9A9]">
+        <p className="font-basic text-sm text-(--scan-muted)">
           Static analysis only; this entry cannot be detonated.
         </p>
       )}
@@ -815,7 +825,7 @@ function SignalPanel({
                 {finding.title || finding.rule_id || 'Finding'}
               </h3>
               {finding.detail && (
-                <p className="font-basic text-sm text-[#CACACA]">
+                <p className="font-basic text-sm text-(--scan-detail)">
                   {finding.detail}
                 </p>
               )}
@@ -824,7 +834,7 @@ function SignalPanel({
           )}
         />
       ) : (
-        <p className="font-basic text-base text-[#A9A9A9]">
+        <p className="font-basic text-base text-(--scan-muted)">
           No matching findings in this report.
           {incomplete &&
             ' Analysis is incomplete; this does not confirm their absence.'}
